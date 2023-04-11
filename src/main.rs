@@ -1,5 +1,5 @@
 use leptos_reactive::{create_signal, SignalGet, SignalUpdate};
-use rust_web_framework::{El, mount, User};
+use rust_web_framework::{El, mount};
 
 
 fn main() {
@@ -16,10 +16,6 @@ fn main() {
             .child(
                 El::new("p")
                     .dyn_text(cx, move || count.get().to_string())
-            )
-            .child(
-                El::new("table")
-                    .resource(User::list())
             )
     }
     )

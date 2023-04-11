@@ -1,35 +1,7 @@
-#[macro_use]
-extern crate dotenv_codegen;
-
 use std::ops::Deref;
 use web_sys::{self, Element, Event, window, Node};
 use leptos_reactive::{create_effect, create_runtime, create_scope, Scope};
 use wasm_bindgen::{self, JsCast};
-use sqlx::postgres::PgPoolOptions;
-use sqlx::{self};
-use dotenv_codegen::dotenv;
-
-#[derive(sqlx::FromRow)]
-pub struct User {
-    pub id: i32,
-    pub username: String,
-}
-
-impl User {
-    #[tokio::main]
-    pub async fn list() -> Result<Vec<User>, sqlx::Error> {
-        let pool = PgPoolOptions::new()
-            .max_connections(5)
-            .connect(dotenv!("DATABASE_URL"))
-            .await?;
-
-        let users = sqlx::query_as::<_, User>("Select * FROM users")
-            .fetch_all(&pool)
-            .await?;
-
-        Ok(users)
-    }
-}
 
 pub fn mount(f: impl FnOnce(Scope) -> El + 'static) {
     let runtime = create_runtime();
@@ -110,21 +82,5 @@ impl El {
         });
 
         self
-    }
-
-    pub fn resource(self, list: Result<Vec<User>, sqlx::Error>) -> Self {
-        let th_id = Self::new("th").text("Id");
-        let th_username = Self::new("th").text("Username");
-        let headers = Self::new("tr").child(th_id).child(th_username);
-        let rows = Self::new("tr");
-
-        for user in list.unwrap() {
-            let td_id = Self::new("td").text(&user.id.to_string());
-            let td_username = Self::new("td").text(&user.username.to_string());
-            rows.push_child(td_id);
-            rows.push_child(td_username);
-        }
-
-        self.child(headers).child(rows)
     }
 }
